@@ -1,0 +1,18 @@
+{
+  "name": "candidate-suggestion-engine",
+  "private": true,
+  "workspaces": [
+    "apps/api",
+    "apps/web"
+  ],
+  "scripts": {
+    "dev": "docker compose up --build",
+    "dev:api": "bun run --cwd apps/api dev",
+    "dev:web": "bun run --cwd apps/web dev",
+    "test:e2e": "docker compose -f docker-compose.test.yml up --build --wait && bun run --cwd apps/web test:e2e",
+    "db:migrate": "bun run --cwd apps/api db:migrate",
+    "db:studio": "bun run --cwd apps/api db:studio",
+    "lint": "bun run --cwd apps/api lint && bun run --cwd apps/web lint",
+    "clean": "rm -rf apps/api/node_modules apps/web/node_modules node_modules"
+  }
+}
