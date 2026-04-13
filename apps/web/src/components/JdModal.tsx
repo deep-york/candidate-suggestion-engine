@@ -7,39 +7,62 @@ interface JdModalProps {
   onClose: () => void;
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────
-
-function ModalOverlay({ onClose, children }: { onClose: () => void; children: React.ReactNode }) {
+// ── Shell ─────────────────────────────────────────────────────────
+function ModalShell({ onClose, children }: { onClose: () => void; children: React.ReactNode }) {
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+      className="anim-fade-in"
+      style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 50,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 20,
+        background: 'rgba(0,0,0,0.78)',
+        backdropFilter: 'blur(10px)',
+      }}
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col">
+      <div
+        className="anim-fade-up"
+        style={{
+          background: 'var(--surface)',
+          border: '1px solid var(--border-strong)',
+          width: '100%',
+          maxWidth: 640,
+          maxHeight: '90vh',
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden',
+        }}
+      >
         {children}
       </div>
     </div>
   );
 }
 
-function Chip({ label, colour = 'blue' }: { label: string; colour?: 'blue' | 'gray' | 'amber' }) {
-  const cls = {
-    blue: 'bg-blue-50 text-blue-700',
-    gray: 'bg-gray-100 text-gray-600',
-    amber: 'bg-amber-50 text-amber-700',
-  }[colour];
+function Tag({ label, variant = 'accent' }: { label: string; variant?: 'accent' | 'muted' | 'amber' }) {
+  const cls = variant === 'accent' ? 'cse-tag' : 'cse-tag-muted';
+  return <span className={cls}>{label}</span>;
+}
+
+function SectionRow({ children }: { children: string }) {
   return (
-    <span className={`text-xs rounded-full px-2.5 py-1 font-medium ${cls}`}>{label}</span>
+    <div
+      className="cse-label"
+      style={{ marginBottom: 10, paddingBottom: 7, borderBottom: '1px solid var(--border)' }}
+    >
+      {children}
+    </div>
   );
 }
 
-// ─── View mode ────────────────────────────────────────────────────
-
+// ── View ──────────────────────────────────────────────────────────
 function JdView({
-  title,
-  profile,
-  onEdit,
-  onClose,
+  title, profile, onEdit, onClose,
 }: {
   title: string;
   profile: JobDescriptionProfile;
@@ -47,106 +70,113 @@ function JdView({
   onClose: () => void;
 }) {
   const requiredSkills = profile.requiredSkills.filter((s) => s.required).map((s) => s.name);
-  const niceToHave = profile.requiredSkills.filter((s) => !s.required).map((s) => s.name);
+  const niceToHave = [
+    ...profile.requiredSkills.filter((s) => !s.required).map((s) => s.name),
+    ...profile.preferredSkills,
+  ];
 
   return (
     <>
-      {/* Header */}
-      <div className="flex items-start justify-between gap-3 px-6 pt-5 pb-4 border-b border-gray-100 shrink-0">
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'flex-start',
+          justifyContent: 'space-between',
+          padding: '24px 28px 20px',
+          borderBottom: '1px solid var(--border)',
+          flexShrink: 0,
+        }}
+      >
         <div>
-          <h2 className="text-lg font-bold text-gray-900 leading-tight">{title}</h2>
+          <h2
+            className="font-display"
+            style={{ fontSize: 30, fontWeight: 600, color: 'var(--text-1)', letterSpacing: '-0.02em', lineHeight: 1.1 }}
+          >
+            {title}
+          </h2>
           {profile.department && (
-            <p className="text-sm text-gray-500 mt-0.5">{profile.department}</p>
+            <p style={{ fontSize: 13, color: 'var(--text-2)', marginTop: 5 }}>{profile.department}</p>
           )}
         </div>
-        <div className="flex items-center gap-2 shrink-0">
-          <button
-            onClick={onEdit}
-            className="px-3 py-1.5 text-sm font-medium border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-          >
-            Edit
-          </button>
+        <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
+          <button onClick={onEdit} className="cse-btn">Edit</button>
           <button
             onClick={onClose}
             aria-label="Close"
-            className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
+            style={{
+              background: 'none',
+              border: '1px solid var(--border-strong)',
+              cursor: 'pointer',
+              color: 'var(--text-2)',
+              width: 32,
+              height: 32,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'color 0.15s',
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--text-1)')}
+            onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-2)')}
           >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
       </div>
 
-      {/* Body */}
-      <div className="overflow-y-auto flex-1 px-6 py-5 space-y-5">
-        {/* Summary */}
-        {profile.summary && (
-          <div>
-            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Summary</p>
-            <p className="text-sm text-gray-700 leading-relaxed">{profile.summary}</p>
-          </div>
-        )}
-
-        {/* Meta row */}
-        <div className="flex flex-wrap gap-3">
-          {profile.seniority && <Chip label={profile.seniority} colour="amber" />}
-          <Chip
+      <div style={{ overflowY: 'auto', flex: 1, padding: '22px 28px', display: 'flex', flexDirection: 'column', gap: 22 }}>
+        {/* Meta chips */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+          {profile.seniority && <Tag label={profile.seniority.toUpperCase()} variant="amber" />}
+          <Tag
             label={
               profile.maxYearsExperience
-                ? `${profile.minYearsExperience}–${profile.maxYearsExperience} yrs exp`
-                : `${profile.minYearsExperience}+ yrs exp`
+                ? `${profile.minYearsExperience}–${profile.maxYearsExperience} YRS`
+                : `${profile.minYearsExperience}+ YRS`
             }
-            colour="gray"
+            variant="muted"
           />
-          {profile.industry && <Chip label={profile.industry} colour="gray" />}
-          {profile.educationRequirement && (
-            <Chip label={profile.educationRequirement} colour="gray" />
-          )}
+          {profile.industry && <Tag label={profile.industry.toUpperCase()} variant="muted" />}
+          {profile.educationRequirement && <Tag label={profile.educationRequirement} variant="muted" />}
         </div>
 
-        {/* Required skills */}
+        {profile.summary && (
+          <div>
+            <SectionRow>Summary</SectionRow>
+            <p style={{ fontSize: 13, color: 'var(--text-1)', lineHeight: 1.75 }}>{profile.summary}</p>
+          </div>
+        )}
+
         {requiredSkills.length > 0 && (
           <div>
-            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">
-              Required Skills
-            </p>
-            <div className="flex flex-wrap gap-1.5">
-              {requiredSkills.map((s) => (
-                <Chip key={s} label={s} colour="blue" />
-              ))}
+            <SectionRow>Required Skills</SectionRow>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+              {requiredSkills.map((s) => <Tag key={s} label={s} variant="accent" />)}
             </div>
           </div>
         )}
 
-        {/* Nice-to-have / preferred */}
-        {(niceToHave.length > 0 || profile.preferredSkills.length > 0) && (
+        {niceToHave.length > 0 && (
           <div>
-            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">
-              Nice to Have
-            </p>
-            <div className="flex flex-wrap gap-1.5">
-              {[...niceToHave, ...profile.preferredSkills].map((s) => (
-                <Chip key={s} label={s} colour="gray" />
-              ))}
+            <SectionRow>Nice to Have</SectionRow>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+              {niceToHave.map((s) => <Tag key={s} label={s} variant="muted" />)}
             </div>
           </div>
         )}
 
-        {/* Responsibilities */}
         {profile.responsibilities.length > 0 && (
           <div>
-            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">
-              Responsibilities
-            </p>
-            <ul className="space-y-1">
+            <SectionRow>Responsibilities</SectionRow>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
               {profile.responsibilities.map((r, i) => (
-                <li key={i} className="text-sm text-gray-700 flex gap-2 items-start">
-                  <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-gray-400 shrink-0" />
-                  {r}
-                </li>
+                <div key={i} style={{ display: 'flex', gap: 8, fontSize: 13, color: 'var(--text-1)' }}>
+                  <span style={{ color: 'var(--accent)', fontSize: 7, marginTop: 5, flexShrink: 0 }}>◆</span>
+                  <span>{r}</span>
+                </div>
               ))}
-            </ul>
+            </div>
           </div>
         )}
       </div>
@@ -154,14 +184,9 @@ function JdView({
   );
 }
 
-// ─── Edit mode ────────────────────────────────────────────────────
-
+// ── Edit ──────────────────────────────────────────────────────────
 function JdEdit({
-  jobId,
-  title: initialTitle,
-  profile,
-  onSaved,
-  onCancel,
+  jobId, title: initialTitle, profile, onSaved, onCancel,
 }: {
   jobId: string;
   title: string;
@@ -170,7 +195,6 @@ function JdEdit({
   onCancel: () => void;
 }) {
   const qc = useQueryClient();
-
   const [title, setTitle] = useState(initialTitle);
   const [summary, setSummary] = useState(profile.summary);
   const [requiredSkills, setRequiredSkills] = useState(
@@ -182,30 +206,20 @@ function JdEdit({
       ...profile.preferredSkills,
     ].join(', '),
   );
-  const [responsibilities, setResponsibilities] = useState(
-    profile.responsibilities.join('\n'),
-  );
+  const [responsibilities, setResponsibilities] = useState(profile.responsibilities.join('\n'));
 
   const save = useMutation({
     mutationFn: () => {
       const reqSkills = requiredSkills
-        .split(',')
-        .map((s) => s.trim())
-        .filter(Boolean)
-        .map((name) => ({ name, required: true }));
-      const prefSkills = preferredSkills
-        .split(',')
-        .map((s) => s.trim())
-        .filter(Boolean);
+        .split(',').map((s) => s.trim()).filter(Boolean)
+        .map((n) => ({ name: n, required: true }));
+      const prefSkills = preferredSkills.split(',').map((s) => s.trim()).filter(Boolean);
       const updatedProfile: Partial<JobDescriptionProfile> = {
         ...profile,
         summary,
         requiredSkills: reqSkills,
         preferredSkills: prefSkills,
-        responsibilities: responsibilities
-          .split('\n')
-          .map((r) => r.trim())
-          .filter(Boolean),
+        responsibilities: responsibilities.split('\n').map((r) => r.trim()).filter(Boolean),
       };
       return apiClient.updateJob(jobId, { title: title.trim(), profile: updatedProfile });
     },
@@ -218,106 +232,79 @@ function JdEdit({
 
   return (
     <>
-      {/* Header */}
-      <div className="flex items-center justify-between gap-3 px-6 pt-5 pb-4 border-b border-gray-100 shrink-0">
-        <h2 className="text-base font-semibold text-gray-900">Edit Job Description</h2>
-        <div className="flex items-center gap-2 shrink-0">
-          <button
-            onClick={onCancel}
-            className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-          >
-            Cancel
-          </button>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '20px 28px',
+          borderBottom: '1px solid var(--border)',
+          flexShrink: 0,
+        }}
+      >
+        <span className="cse-label">Edit Job Description</span>
+        <div style={{ display: 'flex', gap: 6 }}>
+          <button onClick={onCancel} className="cse-btn">Cancel</button>
           <button
             disabled={save.isPending || !title.trim()}
             onClick={() => save.mutate()}
-            className="px-3 py-1.5 text-sm font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-60 transition-colors"
+            className="cse-btn-primary"
           >
             {save.isPending ? 'Saving…' : 'Save & Re-embed'}
           </button>
         </div>
       </div>
 
-      {/* Form */}
-      <div className="overflow-y-auto flex-1 px-6 py-5 space-y-4">
+      <div style={{ overflowY: 'auto', flex: 1, padding: '20px 28px', display: 'flex', flexDirection: 'column', gap: 16 }}>
         {save.isError && (
-          <div className="px-4 py-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+          <div style={{ padding: '10px 14px', background: 'var(--red-dim)', border: '1px solid var(--red)', fontSize: 12, color: 'var(--red)' }}>
             {(save.error as Error).message}
           </div>
         )}
 
         <div>
-          <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
-            Job Title
-          </label>
-          <input
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="e.g. Senior Software Engineer"
-          />
+          <div className="cse-label" style={{ marginBottom: 6 }}>Job Title</div>
+          <input value={title} onChange={(e) => setTitle(e.target.value)} className="cse-input" placeholder="Senior Software Engineer" />
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
-            Summary
-          </label>
-          <textarea
-            value={summary}
-            onChange={(e) => setSummary(e.target.value)}
-            rows={4}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Brief description of the role…"
-          />
+          <div className="cse-label" style={{ marginBottom: 6 }}>Summary</div>
+          <textarea value={summary} onChange={(e) => setSummary(e.target.value)} rows={4} className="cse-textarea" placeholder="Role description…" />
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
-            Required Skills <span className="font-normal text-gray-400">(comma-separated)</span>
-          </label>
-          <input
-            value={requiredSkills}
-            onChange={(e) => setRequiredSkills(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="React, TypeScript, Node.js"
-          />
+          <div className="cse-label" style={{ marginBottom: 6 }}>
+            Required Skills <span style={{ textTransform: 'none', letterSpacing: 0, fontWeight: 300 }}>— comma-separated</span>
+          </div>
+          <input value={requiredSkills} onChange={(e) => setRequiredSkills(e.target.value)} className="cse-input" placeholder="React, TypeScript, Node.js" />
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
-            Nice-to-Have Skills <span className="font-normal text-gray-400">(comma-separated)</span>
-          </label>
-          <input
-            value={preferredSkills}
-            onChange={(e) => setPreferredSkills(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="GraphQL, Docker, AWS"
-          />
+          <div className="cse-label" style={{ marginBottom: 6 }}>
+            Nice-to-Have <span style={{ textTransform: 'none', letterSpacing: 0, fontWeight: 300 }}>— comma-separated</span>
+          </div>
+          <input value={preferredSkills} onChange={(e) => setPreferredSkills(e.target.value)} className="cse-input" placeholder="GraphQL, Docker, AWS" />
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
-            Responsibilities <span className="font-normal text-gray-400">(one per line)</span>
-          </label>
-          <textarea
-            value={responsibilities}
-            onChange={(e) => setResponsibilities(e.target.value)}
-            rows={6}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Design and implement backend services&#10;Review code and mentor junior engineers"
-          />
+          <div className="cse-label" style={{ marginBottom: 6 }}>
+            Responsibilities <span style={{ textTransform: 'none', letterSpacing: 0, fontWeight: 300 }}>— one per line</span>
+          </div>
+          <textarea value={responsibilities} onChange={(e) => setResponsibilities(e.target.value)} rows={6} className="cse-textarea" placeholder="Design and implement features" />
         </div>
 
-        <p className="text-xs text-gray-400">
-          Saving will clear the stored embedding. The vector will be regenerated automatically on the next match run.
+        <p
+          className="font-mono"
+          style={{ fontSize: 9, color: 'var(--text-3)', letterSpacing: '0.1em', textTransform: 'uppercase' }}
+        >
+          Saving clears the stored embedding. Vector regenerates on next match run.
         </p>
       </div>
     </>
   );
 }
 
-// ─── Root modal ───────────────────────────────────────────────────
-
+// ── Root ──────────────────────────────────────────────────────────
 export default function JdModal({ jobId, onClose }: JdModalProps) {
   const [isEditing, setIsEditing] = useState(false);
 
@@ -327,24 +314,19 @@ export default function JdModal({ jobId, onClose }: JdModalProps) {
   });
 
   return (
-    <ModalOverlay onClose={onClose}>
+    <ModalShell onClose={onClose}>
       {isLoading && (
-        <div className="flex items-center justify-center h-64 text-sm text-gray-400">
-          Loading…
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 220 }}>
+          <p className="font-mono" style={{ fontSize: 10, color: 'var(--text-3)', letterSpacing: '0.14em', textTransform: 'uppercase' }}>Loading…</p>
         </div>
       )}
       {isError && (
-        <div className="flex items-center justify-center h-64 text-sm text-red-500">
-          Failed to load job description.
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 220 }}>
+          <p className="font-mono" style={{ fontSize: 10, color: 'var(--red)', letterSpacing: '0.14em', textTransform: 'uppercase' }}>Failed to load job description.</p>
         </div>
       )}
       {data && !isEditing && (
-        <JdView
-          title={data.title}
-          profile={data.profile}
-          onEdit={() => setIsEditing(true)}
-          onClose={onClose}
-        />
+        <JdView title={data.title} profile={data.profile} onEdit={() => setIsEditing(true)} onClose={onClose} />
       )}
       {data && isEditing && (
         <JdEdit
@@ -355,6 +337,6 @@ export default function JdModal({ jobId, onClose }: JdModalProps) {
           onCancel={() => setIsEditing(false)}
         />
       )}
-    </ModalOverlay>
+    </ModalShell>
   );
 }

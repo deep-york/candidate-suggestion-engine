@@ -7,38 +7,62 @@ interface CandidateModalProps {
   onClose: () => void;
 }
 
-// ─── Shared ───────────────────────────────────────────────────────
-
-function ModalOverlay({ onClose, children }: { onClose: () => void; children: React.ReactNode }) {
+// ── Shell ─────────────────────────────────────────────────────────
+function ModalShell({ onClose, children }: { onClose: () => void; children: React.ReactNode }) {
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+      className="anim-fade-in"
+      style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 50,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 20,
+        background: 'rgba(0,0,0,0.78)',
+        backdropFilter: 'blur(10px)',
+      }}
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col">
+      <div
+        className="anim-fade-up"
+        style={{
+          background: 'var(--surface)',
+          border: '1px solid var(--border-strong)',
+          width: '100%',
+          maxWidth: 640,
+          maxHeight: '90vh',
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden',
+        }}
+      >
         {children}
       </div>
     </div>
   );
 }
 
-function Chip({ label, colour = 'blue' }: { label: string; colour?: 'blue' | 'gray' | 'green' }) {
-  const cls = {
-    blue: 'bg-blue-50 text-blue-700',
-    gray: 'bg-gray-100 text-gray-600',
-    green: 'bg-green-50 text-green-700',
-  }[colour];
-  return <span className={`text-xs rounded-full px-2.5 py-1 font-medium ${cls}`}>{label}</span>;
+function Tag({ label, variant = 'accent' }: { label: string; variant?: 'accent' | 'muted' | 'green' }) {
+  const cls = variant === 'accent' ? 'cse-tag' : variant === 'green' ? 'cse-tag-green' : 'cse-tag-muted';
+  return <span className={cls}>{label}</span>;
 }
 
-// ─── View mode ────────────────────────────────────────────────────
+function SectionRow({ children }: { children: string }) {
+  return (
+    <div
+      className="cse-label"
+      style={{ marginBottom: 10, paddingBottom: 7, borderBottom: '1px solid var(--border)' }}
+    >
+      {children}
+    </div>
+  );
+}
 
+// ── View mode ─────────────────────────────────────────────────────
 function CandidateView({
-  fullName,
-  email,
-  profile,
-  onEdit,
-  onClose,
+  fullName, email, profile, onEdit, onClose,
 }: {
   fullName: string | null;
   email: string | null;
@@ -48,100 +72,107 @@ function CandidateView({
 }) {
   return (
     <>
-      {/* Header */}
-      <div className="flex items-start justify-between gap-3 px-6 pt-5 pb-4 border-b border-gray-100 shrink-0">
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'flex-start',
+          justifyContent: 'space-between',
+          padding: '24px 28px 20px',
+          borderBottom: '1px solid var(--border)',
+          flexShrink: 0,
+        }}
+      >
         <div>
-          <h2 className="text-lg font-bold text-gray-900 leading-tight">
+          <h2
+            className="font-display"
+            style={{ fontSize: 30, fontWeight: 600, color: 'var(--text-1)', letterSpacing: '-0.02em', lineHeight: 1.1 }}
+          >
             {fullName ?? 'Unknown Candidate'}
           </h2>
-          <div className="flex flex-wrap items-center gap-2 mt-1">
+          <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 12, marginTop: 6 }}>
             {profile.currentTitle && (
-              <span className="text-sm text-gray-500">{profile.currentTitle}</span>
+              <span style={{ fontSize: 13, color: 'var(--text-2)' }}>{profile.currentTitle}</span>
             )}
             {email && (
               <a
                 href={`mailto:${email}`}
-                className="text-sm text-blue-600 hover:underline truncate"
+                className="font-mono"
+                style={{ fontSize: 11, color: 'var(--accent)', letterSpacing: '0.04em', textDecoration: 'none' }}
               >
                 {email}
               </a>
             )}
           </div>
         </div>
-        <div className="flex items-center gap-2 shrink-0">
-          <button
-            onClick={onEdit}
-            className="px-3 py-1.5 text-sm font-medium border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-          >
-            Edit
-          </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+          <button onClick={onEdit} className="cse-btn">Edit</button>
           <button
             onClick={onClose}
             aria-label="Close"
-            className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
+            style={{
+              background: 'none',
+              border: '1px solid var(--border-strong)',
+              cursor: 'pointer',
+              color: 'var(--text-2)',
+              width: 32,
+              height: 32,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'color 0.15s',
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--text-1)')}
+            onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-2)')}
           >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
       </div>
 
-      {/* Body */}
-      <div className="overflow-y-auto flex-1 px-6 py-5 space-y-5">
-        {/* Meta chips */}
-        <div className="flex flex-wrap gap-2">
-          {profile.seniorityLevel && <Chip label={profile.seniorityLevel} colour="green" />}
+      <div style={{ overflowY: 'auto', flex: 1, padding: '22px 28px', display: 'flex', flexDirection: 'column', gap: 22 }}>
+        {/* Meta */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+          {profile.seniorityLevel && <Tag label={profile.seniorityLevel.toUpperCase()} variant="green" />}
           {profile.totalYearsExperience !== undefined && (
-            <Chip label={`${profile.totalYearsExperience} yrs experience`} colour="gray" />
+            <Tag label={`${profile.totalYearsExperience} YRS`} variant="muted" />
           )}
-          {profile.languages?.map((l) => (
-            <Chip key={l} label={l} colour="gray" />
-          ))}
+          {profile.languages?.map((l) => <Tag key={l} label={l.toUpperCase()} variant="muted" />)}
         </div>
 
-        {/* Summary */}
         {profile.summary && (
           <div>
-            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Summary</p>
-            <p className="text-sm text-gray-700 leading-relaxed">{profile.summary}</p>
+            <SectionRow>Summary</SectionRow>
+            <p style={{ fontSize: 13, color: 'var(--text-1)', lineHeight: 1.75 }}>{profile.summary}</p>
           </div>
         )}
 
-        {/* Skills */}
         {profile.skills?.length > 0 && (
           <div>
-            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Skills</p>
-            <div className="flex flex-wrap gap-1.5">
-              {profile.skills.map((s) => (
-                <Chip key={s.name} label={s.name} colour="blue" />
-              ))}
+            <SectionRow>Skills</SectionRow>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+              {profile.skills.map((s) => <Tag key={s.name} label={s.name} variant="accent" />)}
             </div>
           </div>
         )}
 
-        {/* Work experience */}
         {profile.workExperience?.length > 0 && (
           <div>
-            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
-              Experience
-            </p>
-            <div className="space-y-3">
+            <SectionRow>Experience</SectionRow>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               {profile.workExperience.map((w, i) => (
-                <div key={i} className="pl-3 border-l-2 border-gray-200">
-                  <p className="text-sm font-semibold text-gray-900">{w.title}</p>
-                  <p className="text-sm text-gray-500">
-                    {w.company} · {w.startDate}
-                    {w.endDate ? ` – ${w.endDate}` : ' – Present'}
+                <div key={i} style={{ paddingLeft: 12, borderLeft: '1px solid var(--border-strong)' }}>
+                  <p style={{ fontSize: 14, fontWeight: 500, color: 'var(--text-1)' }}>{w.title}</p>
+                  <p className="font-mono" style={{ fontSize: 10, color: 'var(--text-2)', marginTop: 2, letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+                    {w.company} · {w.startDate}{w.endDate ? ` – ${w.endDate}` : ' – Present'}
                   </p>
                   {w.description && (
-                    <p className="text-sm text-gray-600 mt-1 leading-relaxed">{w.description}</p>
+                    <p style={{ fontSize: 12, color: 'var(--text-2)', marginTop: 6, lineHeight: 1.65 }}>{w.description}</p>
                   )}
                   {w.technologies?.length > 0 && (
-                    <div className="mt-1.5 flex flex-wrap gap-1">
-                      {w.technologies.map((t) => (
-                        <span key={t} className="text-xs bg-gray-100 text-gray-600 rounded px-1.5 py-0.5">{t}</span>
-                      ))}
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3, marginTop: 7 }}>
+                      {w.technologies.map((t) => <Tag key={t} label={t} variant="muted" />)}
                     </div>
                   )}
                 </div>
@@ -150,21 +181,15 @@ function CandidateView({
           </div>
         )}
 
-        {/* Education */}
         {profile.education?.length > 0 && (
           <div>
-            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
-              Education
-            </p>
-            <div className="space-y-1.5">
+            <SectionRow>Education</SectionRow>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               {profile.education.map((e, i) => (
                 <div key={i}>
-                  <p className="text-sm font-medium text-gray-800">
-                    {e.degree} in {e.field}
-                  </p>
-                  <p className="text-sm text-gray-500">
-                    {e.institution}
-                    {e.graduationYear ? ` · ${e.graduationYear}` : ''}
+                  <p style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-1)' }}>{e.degree} in {e.field}</p>
+                  <p className="font-mono" style={{ fontSize: 10, color: 'var(--text-2)', marginTop: 2, letterSpacing: '0.04em' }}>
+                    {e.institution}{e.graduationYear ? ` · ${e.graduationYear}` : ''}
                   </p>
                 </div>
               ))}
@@ -172,20 +197,17 @@ function CandidateView({
           </div>
         )}
 
-        {/* Certifications */}
         {profile.certifications?.length > 0 && (
           <div>
-            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">
-              Certifications
-            </p>
-            <ul className="space-y-0.5">
+            <SectionRow>Certifications</SectionRow>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
               {profile.certifications.map((cert, i) => (
-                <li key={i} className="text-sm text-gray-700 flex gap-2 items-start">
-                  <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-blue-400 shrink-0" />
-                  {cert}
-                </li>
+                <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'flex-start', fontSize: 13, color: 'var(--text-1)' }}>
+                  <span style={{ color: 'var(--accent)', marginTop: 4, fontSize: 7, flexShrink: 0 }}>◆</span>
+                  <span>{cert}</span>
+                </div>
               ))}
-            </ul>
+            </div>
           </div>
         )}
       </div>
@@ -193,8 +215,7 @@ function CandidateView({
   );
 }
 
-// ─── Edit mode ────────────────────────────────────────────────────
-
+// ── Edit mode ─────────────────────────────────────────────────────
 function CandidateEdit({
   candidateId,
   fullName: initialFullName,
@@ -211,35 +232,22 @@ function CandidateEdit({
   onCancel: () => void;
 }) {
   const update = useUpdateCandidate(candidateId);
-
   const [fullName, setFullName] = useState(initialFullName ?? '');
   const [email, setEmail] = useState(initialEmail ?? '');
   const [currentTitle, setCurrentTitle] = useState(profile.currentTitle ?? '');
   const [totalYears, setTotalYears] = useState(String(profile.totalYearsExperience ?? 0));
   const [summary, setSummary] = useState(profile.summary ?? '');
-  const [skills, setSkills] = useState(
-    (profile.skills ?? []).map((s) => s.name).join(', '),
-  );
-  const [certifications, setCertifications] = useState(
-    (profile.certifications ?? []).join('\n'),
-  );
+  const [skills, setSkills] = useState((profile.skills ?? []).map((s) => s.name).join(', '));
+  const [certifications, setCertifications] = useState((profile.certifications ?? []).join('\n'));
 
   function handleSave() {
     const parsedSkills = skills
-      .split(',')
-      .map((s) => s.trim())
-      .filter(Boolean)
+      .split(',').map((s) => s.trim()).filter(Boolean)
       .map((name) => ({
         name,
-        // Preserve existing category/proficiency if skill name matches, else default
-        category: profile.skills.find(
-          (s) => s.name.toLowerCase() === name.toLowerCase(),
-        )?.category ?? 'technical',
-        proficiency: profile.skills.find(
-          (s) => s.name.toLowerCase() === name.toLowerCase(),
-        )?.proficiency,
+        category: profile.skills.find((s) => s.name.toLowerCase() === name.toLowerCase())?.category ?? 'technical',
+        proficiency: profile.skills.find((s) => s.name.toLowerCase() === name.toLowerCase())?.proficiency,
       }));
-
     const updatedProfile: Partial<CandidateProfile> = {
       ...profile,
       fullName: fullName.trim(),
@@ -248,12 +256,8 @@ function CandidateEdit({
       totalYearsExperience: Number(totalYears) || 0,
       summary: summary.trim(),
       skills: parsedSkills,
-      certifications: certifications
-        .split('\n')
-        .map((c) => c.trim())
-        .filter(Boolean),
+      certifications: certifications.split('\n').map((c) => c.trim()).filter(Boolean),
     };
-
     update.mutate(
       { fullName: fullName.trim(), email: email.trim() || undefined, profile: updatedProfile },
       { onSuccess: onSaved },
@@ -262,150 +266,103 @@ function CandidateEdit({
 
   return (
     <>
-      {/* Header */}
-      <div className="flex items-center justify-between gap-3 px-6 pt-5 pb-4 border-b border-gray-100 shrink-0">
-        <h2 className="text-base font-semibold text-gray-900">Edit Candidate</h2>
-        <div className="flex items-center gap-2 shrink-0">
-          <button
-            onClick={onCancel}
-            className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-          >
-            Cancel
-          </button>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '20px 28px',
+          borderBottom: '1px solid var(--border)',
+          flexShrink: 0,
+        }}
+      >
+        <span className="cse-label">Edit Candidate Profile</span>
+        <div style={{ display: 'flex', gap: 6 }}>
+          <button onClick={onCancel} className="cse-btn">Cancel</button>
           <button
             disabled={update.isPending || !fullName.trim()}
             onClick={handleSave}
-            className="px-3 py-1.5 text-sm font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-60 transition-colors"
+            className="cse-btn-primary"
           >
             {update.isPending ? 'Saving…' : 'Save & Re-embed'}
           </button>
         </div>
       </div>
 
-      {/* Form */}
-      <div className="overflow-y-auto flex-1 px-6 py-5 space-y-4">
+      <div style={{ overflowY: 'auto', flex: 1, padding: '20px 28px', display: 'flex', flexDirection: 'column', gap: 16 }}>
         {update.isError && (
-          <div className="px-4 py-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+          <div style={{ padding: '10px 14px', background: 'var(--red-dim)', border: '1px solid var(--red)', fontSize: 12, color: 'var(--red)' }}>
             {(update.error as Error).message}
           </div>
         )}
 
-        <div className="grid grid-cols-2 gap-4">
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
           <div>
-            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
-              Full Name
-            </label>
-            <input
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Jane Smith"
-            />
+            <div className="cse-label" style={{ marginBottom: 6 }}>Full Name</div>
+            <input value={fullName} onChange={(e) => setFullName(e.target.value)} className="cse-input" placeholder="Jane Smith" />
           </div>
           <div>
-            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
-              Email
-            </label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="jane@example.com"
-            />
+            <div className="cse-label" style={{ marginBottom: 6 }}>Email</div>
+            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="cse-input" placeholder="jane@example.com" />
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
           <div>
-            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
-              Current Title
-            </label>
-            <input
-              value={currentTitle}
-              onChange={(e) => setCurrentTitle(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Senior Software Engineer"
-            />
+            <div className="cse-label" style={{ marginBottom: 6 }}>Current Title</div>
+            <input value={currentTitle} onChange={(e) => setCurrentTitle(e.target.value)} className="cse-input" placeholder="Senior Software Engineer" />
           </div>
           <div>
-            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
-              Years of Experience
-            </label>
-            <input
-              type="number"
-              min="0"
-              max="50"
-              value={totalYears}
-              onChange={(e) => setTotalYears(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+            <div className="cse-label" style={{ marginBottom: 6 }}>Years Experience</div>
+            <input type="number" min="0" max="50" value={totalYears} onChange={(e) => setTotalYears(e.target.value)} className="cse-input" />
           </div>
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
-            Summary
-          </label>
-          <textarea
-            value={summary}
-            onChange={(e) => setSummary(e.target.value)}
-            rows={4}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Brief professional summary…"
-          />
+          <div className="cse-label" style={{ marginBottom: 6 }}>Summary</div>
+          <textarea value={summary} onChange={(e) => setSummary(e.target.value)} rows={4} className="cse-textarea" placeholder="Brief professional summary…" />
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
-            Skills <span className="font-normal text-gray-400">(comma-separated)</span>
-          </label>
-          <input
-            value={skills}
-            onChange={(e) => setSkills(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="React, TypeScript, Node.js, PostgreSQL"
-          />
+          <div className="cse-label" style={{ marginBottom: 6 }}>
+            Skills <span style={{ textTransform: 'none', letterSpacing: 0, fontWeight: 300 }}>— comma-separated</span>
+          </div>
+          <input value={skills} onChange={(e) => setSkills(e.target.value)} className="cse-input" placeholder="React, TypeScript, Node.js, PostgreSQL" />
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
-            Certifications <span className="font-normal text-gray-400">(one per line)</span>
-          </label>
-          <textarea
-            value={certifications}
-            onChange={(e) => setCertifications(e.target.value)}
-            rows={3}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="AWS Solutions Architect&#10;Google Cloud Professional"
-          />
+          <div className="cse-label" style={{ marginBottom: 6 }}>
+            Certifications <span style={{ textTransform: 'none', letterSpacing: 0, fontWeight: 300 }}>— one per line</span>
+          </div>
+          <textarea value={certifications} onChange={(e) => setCertifications(e.target.value)} rows={3} className="cse-textarea" placeholder="AWS Solutions Architect" />
         </div>
 
-        <p className="text-xs text-gray-400">
-          Saving will regenerate the candidate's embedding vector using the updated profile.
-          They will appear in future match runs with their new vector.
+        <p
+          className="font-mono"
+          style={{ fontSize: 9, color: 'var(--text-3)', letterSpacing: '0.1em', textTransform: 'uppercase' }}
+        >
+          Saving will regenerate the embedding vector from the updated profile.
         </p>
       </div>
     </>
   );
 }
 
-// ─── Root modal ───────────────────────────────────────────────────
-
+// ── Root ──────────────────────────────────────────────────────────
 export default function CandidateModal({ candidateId, onClose }: CandidateModalProps) {
   const [isEditing, setIsEditing] = useState(false);
   const { data, isLoading, isError } = useCandidate(candidateId);
 
   return (
-    <ModalOverlay onClose={onClose}>
+    <ModalShell onClose={onClose}>
       {isLoading && (
-        <div className="flex items-center justify-center h-64 text-sm text-gray-400">
-          Loading…
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 220 }}>
+          <p className="font-mono" style={{ fontSize: 10, color: 'var(--text-3)', letterSpacing: '0.14em', textTransform: 'uppercase' }}>Loading…</p>
         </div>
       )}
       {isError && (
-        <div className="flex items-center justify-center h-64 text-sm text-red-500">
-          Failed to load candidate.
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 220 }}>
+          <p className="font-mono" style={{ fontSize: 10, color: 'var(--red)', letterSpacing: '0.14em', textTransform: 'uppercase' }}>Failed to load candidate.</p>
         </div>
       )}
       {data && !isEditing && (
@@ -427,6 +384,6 @@ export default function CandidateModal({ candidateId, onClose }: CandidateModalP
           onCancel={() => setIsEditing(false)}
         />
       )}
-    </ModalOverlay>
+    </ModalShell>
   );
 }

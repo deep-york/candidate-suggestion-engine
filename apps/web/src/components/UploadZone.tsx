@@ -23,44 +23,62 @@ export default function UploadZone({ hook, label = 'Upload file' }: UploadZonePr
     onDropAccepted: ([file]) => file && upload(file),
   });
 
+  const borderColor =
+    isDragActive ? 'var(--accent)'
+    : state.stage === 'done' ? 'var(--green)'
+    : state.stage === 'error' ? 'var(--red)'
+    : isActive ? 'var(--border-strong)'
+    : 'var(--border-strong)';
+
   return (
     <div
       {...getRootProps()}
       data-testid="upload-zone"
-      className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${
-        isDragActive
-          ? 'border-blue-500 bg-blue-50'
-          : isActive
-            ? 'border-gray-300 bg-gray-50 cursor-not-allowed'
-            : 'border-gray-300 hover:border-blue-400'
-      }`}
+      style={{
+        border: `1px dashed ${borderColor}`,
+        padding: '22px 20px',
+        textAlign: 'center',
+        cursor: isActive ? 'not-allowed' : 'pointer',
+        transition: 'border-color 0.2s, background 0.2s',
+        background: isDragActive ? 'var(--accent-dim)' : 'transparent',
+      }}
     >
       <input {...getInputProps()} />
 
       {state.stage === 'idle' && (
-        <p className="text-sm text-gray-500">
+        <p
+          className="font-mono"
+          style={{ fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--text-2)' }}
+        >
           {isDragActive
-            ? 'Drop the file here…'
-            : `${label} — drag & drop or click (PDF, DOCX)`}
+            ? '↓  Drop file here'
+            : `${label} — Drag & drop or click · PDF, DOCX`}
         </p>
       )}
 
       {state.stage === 'uploading' && (
-        <p className="text-sm text-blue-600">Uploading…</p>
+        <p className="font-mono" style={{ fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--accent)' }}>
+          Uploading…
+        </p>
       )}
 
       {state.stage === 'processing' && (
-        <p className="text-sm text-blue-600">
-          Processing… <span className="text-gray-400">({state.status})</span>
+        <p className="font-mono" style={{ fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--accent)' }}>
+          Processing{' '}
+          <span style={{ color: 'var(--text-2)' }}>({state.status?.toUpperCase()})</span>
         </p>
       )}
 
       {state.stage === 'done' && (
-        <p className="text-sm text-green-600">✓ Document ready</p>
+        <p className="font-mono" style={{ fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--green)' }}>
+          ✓  Document Ready
+        </p>
       )}
 
       {state.stage === 'error' && (
-        <p className="text-sm text-red-600">Error: {state.message}</p>
+        <p className="font-mono" style={{ fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--red)' }}>
+          Error: {state.message}
+        </p>
       )}
     </div>
   );

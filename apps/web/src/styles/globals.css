@@ -1,1 +1,212 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,400;1,600&family=IBM+Plex+Mono:wght@300;400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
+
 @import "tailwindcss";
+
+/* ── Design tokens ─────────────────────────────────────────────── */
+:root {
+  --bg:             #09090A;
+  --surface:        #101014;
+  --surface-2:      #18181C;
+  --surface-3:      #1F1F26;
+  --border:         rgba(255, 255, 255, 0.06);
+  --border-strong:  rgba(255, 255, 255, 0.13);
+
+  --text-1:         #EDE8DC;
+  --text-2:         #7B7368;
+  --text-3:         #3D3B37;
+
+  --accent:         #C9964A;
+  --accent-dim:     rgba(201, 150, 74, 0.10);
+  --accent-glow:    rgba(201, 150, 74, 0.20);
+
+  --green:          #4E9E6A;
+  --green-dim:      rgba(78, 158, 106, 0.10);
+
+  --red:            #B85A5A;
+  --red-dim:        rgba(184, 90, 90, 0.10);
+}
+
+/* ── Base ──────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  background: var(--bg);
+  color: var(--text-1);
+  font-family: 'IBM Plex Sans', -apple-system, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Film grain overlay ────────────────────────────────────────── */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.30;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.80' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+}
+
+/* ── Typography helpers ────────────────────────────────────────── */
+.font-display {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+}
+.font-mono {
+  font-family: 'IBM Plex Mono', 'Courier New', monospace;
+}
+.cse-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--text-2);
+}
+
+/* ── Component atoms ───────────────────────────────────────────── */
+.cse-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+.cse-tag {
+  display: inline-flex;
+  align-items: center;
+  background: var(--accent-dim);
+  color: var(--accent);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  padding: 2px 7px;
+  letter-spacing: 0.05em;
+}
+.cse-tag-muted {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-2);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  padding: 2px 7px;
+  letter-spacing: 0.05em;
+}
+.cse-tag-green {
+  display: inline-flex;
+  align-items: center;
+  background: var(--green-dim);
+  color: var(--green);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  padding: 2px 7px;
+  letter-spacing: 0.05em;
+}
+
+/* ── Form inputs ───────────────────────────────────────────────── */
+.cse-input {
+  background: var(--surface-2);
+  border: 1px solid var(--border-strong);
+  color: var(--text-1);
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 13px;
+  padding: 8px 12px;
+  width: 100%;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.cse-input::placeholder { color: var(--text-3); }
+.cse-input:focus { border-color: var(--accent); }
+
+.cse-textarea {
+  background: var(--surface-2);
+  border: 1px solid var(--border-strong);
+  color: var(--text-1);
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 13px;
+  padding: 8px 12px;
+  width: 100%;
+  outline: none;
+  resize: vertical;
+  transition: border-color 0.15s;
+}
+.cse-textarea::placeholder { color: var(--text-3); }
+.cse-textarea:focus { border-color: var(--accent); }
+
+/* ── Buttons ───────────────────────────────────────────────────── */
+.cse-btn {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 7px 14px;
+  border: 1px solid var(--border-strong);
+  background: transparent;
+  color: var(--text-2);
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+.cse-btn:hover { color: var(--text-1); border-color: var(--text-2); }
+.cse-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+.cse-btn-primary {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 7px 14px;
+  border: 1px solid var(--accent);
+  background: var(--accent-dim);
+  color: var(--accent);
+  cursor: pointer;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+.cse-btn-primary:hover { background: var(--accent-glow); }
+.cse-btn-primary:disabled { opacity: 0.35; cursor: not-allowed; }
+
+/* ── Animations ────────────────────────────────────────────────── */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes score-grow {
+  from { width: 0 !important; }
+}
+@keyframes cse-spin {
+  to { transform: rotate(360deg); }
+}
+
+.anim-fade-up  { animation: fade-up  0.5s ease both; }
+.anim-fade-in  { animation: fade-in  0.3s ease both; }
+.anim-spin     { animation: cse-spin 0.75s linear infinite; }
+
+/* Stagger delays */
+.d-1  { animation-delay: 0.04s; }
+.d-2  { animation-delay: 0.08s; }
+.d-3  { animation-delay: 0.12s; }
+.d-4  { animation-delay: 0.16s; }
+.d-5  { animation-delay: 0.20s; }
+.d-6  { animation-delay: 0.24s; }
+.d-7  { animation-delay: 0.28s; }
+.d-8  { animation-delay: 0.32s; }
+.d-9  { animation-delay: 0.36s; }
+.d-10 { animation-delay: 0.40s; }
+
+/* ── Score bar ─────────────────────────────────────────────────── */
+.score-fill {
+  animation: score-grow 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ── Scrollbar ─────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 3px; height: 3px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-strong); }
+::-webkit-scrollbar-thumb:hover { background: var(--text-3); }
+
+/* ── Selection ─────────────────────────────────────────────────── */
+::selection { background: var(--accent-dim); color: var(--accent); }
